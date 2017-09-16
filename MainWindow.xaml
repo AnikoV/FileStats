@@ -1,0 +1,38 @@
+﻿<Window x:Class="FileStats.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FileStats"
+        xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=System"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="600">
+    <Window.Resources>
+        <componentModel:BackgroundWorker x:Key="BackgroundWorker"></componentModel:BackgroundWorker>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="525"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.1*" MinHeight="30"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="0.1*" MinHeight="30"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.8*"></ColumnDefinition>
+                <ColumnDefinition Width="0.08*"></ColumnDefinition>
+                <ColumnDefinition Width="0.2*"></ColumnDefinition>
+                <ColumnDefinition Width="0.2*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="PathTextBox" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5" MinHeight="20" />
+            <Button x:Name="browseButton" Grid.Column="1" Content="..." HorizontalAlignment="Left" Width="30"  VerticalAlignment="Center" Click="Browse_click"/>
+            <Button x:Name="DoActionButton" Grid.Column="2" Content="Search" HorizontalAlignment="Center" Width="75"  VerticalAlignment="Center" Click="DoActionButton_Click" />
+            <Button x:Name="CancelButton" Grid.Column="3" Content="Cancel" HorizontalAlignment="Center" Width="75"  VerticalAlignment="Center" Click="CancelButton_OnClick" />
+        </Grid>
+        <TextBox x:Name="TextBox" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto"/>
+        <ProgressBar x:Name="ProgressBar" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinHeight="20" Margin="5"></ProgressBar>
+    </Grid>
+</Window>
+
