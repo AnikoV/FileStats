@@ -8,13 +8,22 @@ using System.Windows.Forms;
 
 namespace FileStats
 {
+	public struct DataRow
+	{
+		public DateTime SelectedDate;
+		public string CarManufaturer;
+		public string CarModel;
+		public int CarCount;
+	}
+
     public partial class MainWindow : Window
     {
         private BackgroundWorker _backgroundWorker; // объект для запуска задачи в фоновом потоке, чтобы не фризить UI, если задача будет долгой по времени
         private int _filesCount; // количество файлов в директории
-        private Dictionary<string, int> _dataDictionary; //данные для записи в файл
+	    private List<DataRow> _data = new List<DataRow>(); //данные для записи в файл
+		private DateTime _selectedDate;
 
-        /*----------Обработка жизненного цикла окна------------*/
+	    /*----------Обработка жизненного цикла окна------------*/
         
          /// <summary>
          /// Конструктор окна
@@ -25,7 +34,7 @@ namespace FileStats
             Initialized += OnInitialized; // подписка на событие по окончании инициализации окна
             Closed += OnClosed; // подписка на событие закрытия окна
             InitBackgroundWorker();
-            _dataDictionary = new Dictionary<string, int>();
+            
         }
 
         private void OnInitialized(object sender, EventArgs eventArgs)
@@ -75,7 +84,8 @@ namespace FileStats
         {
             if (!string.IsNullOrEmpty(PathTextBox.Text))
             {
-                _backgroundWorker.RunWorkerAsync(PathTextBox.Text);
+				_selectedDate = DatePicker.SelectedDate ?? DateTime.Now;
+				_backgroundWorker.RunWorkerAsync(PathTextBox.Text);
             }
         }
 
@@ -107,7 +117,7 @@ namespace FileStats
             CountFilesInDirectory((string)doWorkEventArgs.Argument);
         }
 
-        /// <summary>
+	    /// <summary>
         /// Обработчик события изменения прогресса фоновой задачи
         /// </summary>
         /// <param name="sender"></param>
@@ -136,7 +146,7 @@ namespace FileStats
         /// <summary>
         /// Функция пересчета файлов и директорий в указанной (главной) директории
         /// 1. Считываем директории и кол-во файлов в главной папке
-        /// 2. Пробегаемся по директориям главной папки, в каждой считаем колличество файлов и рекурсивно вызываем функцию поиска,
+        /// 2. Пробегаемся по директориям главной папки, в каждой считаем количество файлов и рекурсивно вызываем функцию поиска,
         ///  чтобы пройтись в глубину директории, пока она не закончится
         /// </summary>
         /// <param name="rootDirectory">Путь к папке</param>
@@ -158,45 +168,72 @@ namespace FileStats
                 {
                     _filesCount += files.Length;
                 }
-                Search(directory);
+                Search(directory,0);
                 int progress = (int)Math.Round((float)(i + 1) / mainDirectories.Length * 100.0f);
-                _dataDictionary[directory] = _filesCount;
                 _backgroundWorker.ReportProgress(progress, directory + "Files : " + _filesCount);
                 _filesCount = 0;
             }
         }
+		
+		/// <summary>
+		/// Рекурсивная функция перебора всех файлов
+		/// </summary>
+		/// <param name="mainDirectory">Директория поиска</param>
+		void Search(string mainDirectory, int depth)
+		{
+			string[] dirs = { };
+			dirs = GetDirectories(mainDirectory, dirs);
+			Debug.WriteLine(depth + "\t" + mainDirectory);
 
-        /// <summary>
-        /// Рекурсивная функция перебора всех файлов
-        /// </summary>
-        /// <param name="mainDirectory">Директория поиска</param>
-        void Search(string mainDirectory)
-        {
-            string[] dirs = { };
-            dirs = GetDirectories(mainDirectory, dirs);
+			foreach (string directory in dirs)
+			{
+				Search(directory, depth + 1);
+			}
+			CountFiles(mainDirectory, depth);
+			CreateDataRow(mainDirectory, depth);
+		}
 
-            foreach (string directory in dirs)
-            {
-                string[] files = { };
-                files = GetFiles(directory, files);
+		private void CreateDataRow(string mainDirectory, int depth)
+		{
+			if (depth == 1)
+			{
+				Debug.WriteLine("FilesCount in " + mainDirectory + "\t" + _filesCount);
+				var splits = mainDirectory.Split('\\');
+				_data.Add(new DataRow
+				{
+					SelectedDate = _selectedDate,
+					CarManufaturer = splits[splits.Length - 2],
+					CarModel = splits[splits.Length - 1],
+					CarCount = _filesCount
+				});
 
-                if (files.Length != 0)
-                {
-                    _filesCount += files.Length;
-                }
-                Search(directory);
-            }
-        }
+				_filesCount = 0;
+			}
+		}
 
-        /// <summary>
-        /// Взятие всех директорий внутри указанной с обработкой исключений 
-        /// (например, если нет доступа, чтобы программа не упала с ошибкой, 
-        /// а например вывела все папки к которым не получила доступ)
-        /// </summary>
-        /// <param name="mainDirectory">Дректоррия поиска</param>
-        /// <param name="dirs">массив для записи результата</param>
-        /// <returns></returns>
-        private string[] GetDirectories(string mainDirectory, string[] dirs)
+		private void CountFiles(string mainDirectory, int depth)
+		{
+			if (depth >= 1)
+			{
+				string[] files = { };
+				files = GetFiles(mainDirectory, files);
+
+				if (files.Length != 0)
+				{
+					_filesCount += files.Length;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Взятие всех директорий внутри указанной с обработкой исключений 
+		/// (например, если нет доступа, чтобы программа не упала с ошибкой, 
+		/// а например вывела все папки к которым не получила доступ)
+		/// </summary>
+		/// <param name="mainDirectory">Дректоррия поиска</param>
+		/// <param name="dirs">массив для записи результата</param>
+		/// <returns></returns>
+		private string[] GetDirectories(string mainDirectory, string[] dirs)
         {
             try
             {
@@ -239,16 +276,16 @@ namespace FileStats
         /// </summary>
         private void WriteResultInCsvFile()
         {
-            if (_dataDictionary.Count > 0)
-            {
-                using (var file = new StreamWriter("output.csv"))
-                {
-                    foreach (var kv in _dataDictionary)
-                    {
-                        file.WriteLine(string.Format("{0};{1}", kv.Key, kv.Value));
-                    }
-                }
-            }
-        }
+			if (_data.Count > 0)
+			{
+				using (var file = new StreamWriter("output.csv"))
+				{
+					foreach (var dataRow in _data)
+					{
+						file.WriteLine($"{dataRow.SelectedDate.Date};{dataRow.CarManufaturer};{dataRow.CarModel};{dataRow.CarCount}");
+					}
+				}
+			}
+		}
     }
 }
