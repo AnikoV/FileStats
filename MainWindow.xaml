@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:FileStats"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=System"
         xmlns:controls="http://schemas.microsoft.com/wpf/2008/toolkit"
@@ -17,32 +16,41 @@
             <ColumnDefinition MinWidth="525"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.1*" MinHeight="30"/>
-            <RowDefinition Height="0.2*" MinHeight="30"/>
+            <RowDefinition Height="0.35*" MinHeight="30"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="0.1*" MinHeight="30"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.5*"/>
+                <RowDefinition Height="0.5*"/>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.2*"></ColumnDefinition>
                 <ColumnDefinition Width="0.8*"></ColumnDefinition>
                 <ColumnDefinition Width="0.08*"></ColumnDefinition>
                 <ColumnDefinition Width="0.2*"></ColumnDefinition>
                 <ColumnDefinition Width="0.2*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <TextBox x:Name="PathTextBox" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5" MinHeight="20" />
-            <Button x:Name="browseButton" Grid.Column="1" Content="..." HorizontalAlignment="Left" Width="30"  VerticalAlignment="Center" Click="Browse_click"/>
-            <Button x:Name="DoActionButton" Grid.Column="2" Content="Search" HorizontalAlignment="Center" Width="75"  VerticalAlignment="Center" Click="DoActionButton_Click" />
-            <Button x:Name="CancelButton" Grid.Column="3" Content="Cancel" HorizontalAlignment="Center" Width="75"  VerticalAlignment="Center" Click="CancelButton_OnClick" />
+            
+            <Label Grid.Column="0" Grid.Row="0">Target Folder</Label>
+            <TextBox x:Name="PathTextBox" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5" MinHeight="20" />
+            <Button x:Name="BrowseButton" Grid.Column="2" Grid.Row="0" Content="..." HorizontalAlignment="Left" Width="30"  VerticalAlignment="Center" Click="Browse_click"/>
+            <Button x:Name="DoActionButton" Grid.Column="3" Grid.Row="0" Content="Search" HorizontalAlignment="Center" Width="75"  VerticalAlignment="Center" Click="DoActionButton_Click" />
+            <Button x:Name="CancelButton" Grid.Column="4" Grid.Row="0" Content="Cancel" HorizontalAlignment="Center" Width="75"  VerticalAlignment="Center" Click="CancelButton_OnClick" />
+
+            <Label Grid.Column="0" Grid.Row="1"  HorizontalContentAlignment="Center" HorizontalAlignment="Stretch">Target File</Label>
+            <TextBox x:Name="ExcelFilePathTextBox" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,9" MinHeight="20" Height="20" />
+            <Button x:Name="BrowseExcelFileButton" Grid.Column="2" Grid.Row="1" Content="..." HorizontalAlignment="Left" Width="30"  VerticalAlignment="Center" Click="BrowseExcelFileButton_OnClick" Height="20" />
+            <controls:DatePicker x:Name="DatePicker" Grid.Column="3" Grid.Row="1" Grid.ColumnSpan="2" SelectedDate="{x:Static sys:DateTime.Now}" />
         </Grid>
         <Grid Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <controls:DatePicker x:Name="DatePicker" Grid.Column="1" SelectedDate="{x:Static sys:DateTime.Now}" Margin="68.828,0,0,0"/>
         </Grid>
         <TextBox x:Name="TextBox" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto"/>
-        <ProgressBar x:Name="ProgressBar" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinHeight="20" Margin="5"></ProgressBar>
+        <ProgressBar x:Name="ProgressBar" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinHeight="20" Margin="5"></ProgressBar>
     </Grid>
 </Window>
 
